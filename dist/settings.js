@@ -23,6 +23,7 @@ let videos = [
     }
 ];
 exports.app.get('/videos', (_req, res) => {
+    _req.body.author;
     res.send(videos);
 });
 exports.app.delete('/videos', (_req, res) => {
@@ -62,7 +63,7 @@ exports.app.put('/videos/:videoId', (req, res) => {
         return;
     }
     const id = +req.params.videoId;
-    const video = videos.find(v => v.id === id);
+    const video = videos.find(v => { return v.id === id; });
     if (video) {
         video.title = title;
         res.status(204).send(video);

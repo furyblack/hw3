@@ -39,6 +39,7 @@ type CreateVideoType = {
     title: string;
     author: string;
     availableResolutions: typeof AvailableResolutions;
+
 };
 type ErrorMessages = {
     message: string;
@@ -48,7 +49,8 @@ type ErrorType = {
     errorMessages: ErrorMessages[];
 };
 
-app.get('/videos', (_req: Request, res: Response) => {
+app.get('/videos', (_req: Request<{}, {}, CreateVideoType>, res: Response) => {
+    _req.body.author
     res.send(videos);
 });
 
@@ -95,7 +97,8 @@ app.put('/videos/:videoId', (req:Request, res:Response)=>{
         return
     }
     const id = +req.params.videoId
-    const video = videos.find(v=>v.id ===id)
+    const video = videos.find(v=> { return v.id === id})
+
     if (video){
         video.title = title;
         res.status(204).send(video)
