@@ -13,7 +13,7 @@ let videos = [
         id: 0,
         title: 'string',
         author: 'string',
-        canBeDownloaded: true,
+        canBeDownloaded: false,
         minAgeRestriction: null,
         createdAt: "2024-01-07T08:53:23.637Z",
         publicationDate: "2024-01-07T08:53:23.637Z",
@@ -26,7 +26,7 @@ exports.app.get('/videos', (_req, res) => {
     _req.body.author;
     res.send(videos);
 });
-exports.app.delete('/videos', (_req, res) => {
+exports.app.delete('/testing/all-data', (_req, res) => {
     videos.length = 0;
     res.sendStatus(204);
 });
