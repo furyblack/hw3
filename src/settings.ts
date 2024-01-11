@@ -1,10 +1,11 @@
 import express, { Request, Response } from 'express';
+import {VideoUpdateModelBody, VideoUpdateModelParams} from "../models/videoUpdateModel";
 
 export const app = express();
 
 app.use(express.json());
 
-const AvailableResolutions = ["P144", "P240", "P360", "P480", "P720", "P1080", "P1440", "P2160"];
+export const AvailableResolutions = ["P144", "P240", "P360", "P480", "P720", "P1080", "P1440", "P2160"];
 
 type VideoDbType = {
     id: number;
@@ -34,6 +35,7 @@ let videos: VideoDbType[] = [
 ];
 type RequestWithParams<P> = Request<P, {}, {}, {}>;
 type RequestWithBody<B> = Request<{}, {}, B, {}>;
+type RequestWithParamsAndBody<P,B> = Request<P, {}, B,{}>
 
 type CreateVideoType = {
     title: string;
@@ -41,12 +43,12 @@ type CreateVideoType = {
     availableResolutions: typeof AvailableResolutions;
 
 };
-type ErrorMessages = {
+type errorsMessages = {
     message: string;
     field: string;
 };
 type ErrorType = {
-    errorMessages: ErrorMessages[];
+    errorsMessages: errorsMessages[];
 };
 
 app.get('/videos', (_req: Request<{}, {}, CreateVideoType>, res: Response) => {
@@ -73,6 +75,7 @@ app.delete('/videos/:videoId', (req: Request, res: Response) => {
 
 
 app.get('/videos/:id', (req: RequestWithParams<{ id: string }>, res: Response) => {
+    console.log('get started')
     const id = +req.params.id
     const video = videos.find((v) => v.id === id)
 
@@ -84,51 +87,28 @@ app.get('/videos/:id', (req: RequestWithParams<{ id: string }>, res: Response) =
 })
 
 
-app.put('/videos/:videoId', (req:Request, res:Response)=>{
-    let title = req.body.title
-    if (!title || typeof title !== 'string' || !title.trim() || title.length>40){
-        res.status(400).send({
-            errorsMessages:[{
-                message:'Incorrect title',
-                field: 'title'
-            }],
-            resultCode:1
-        })
-        return
-    }
-    const id = +req.params.videoId
-    const video = videos.find(v=> { return v.id === id})
 
-    if (video){
-        video.title = title;
-        res.status(204).send(video)
-
-
-    }else{
-        res.send(404)
-    }
-})
 
 
 
 app.post('/videos', (req: RequestWithBody<CreateVideoType>, res: Response) => {
     let errors: ErrorType = {
-        errorMessages: []
+        errorsMessages: []
 
     }
     let {title, author, availableResolutions}:CreateVideoType = req.body
 
 if (!title || typeof title !=='string' || !title.trim() || title.trim().length > 40) {
-        errors.errorMessages.push({message: 'Invalid title!', field: 'title'})
+        errors.errorsMessages.push({message: 'Invalid title!', field: 'title'})
     }
 
     if (!author || typeof author !=='string' || !author.trim() || author.trim().length > 20) {
-        errors.errorMessages.push({message: 'Invalid author!', field: 'author'})
+        errors.errorsMessages.push({message: 'Invalid author!', field: 'author'})
     }
 
     if (availableResolutions && Array.isArray(availableResolutions)) {
         availableResolutions.forEach(r => {
-            !AvailableResolutions.includes(r) && errors.errorMessages.push({
+            !AvailableResolutions.includes(r) && errors.errorsMessages.push({
                 message: 'Invalid avalableResolutions!',
                 field: 'avalableResolutions'
             })
@@ -136,7 +116,7 @@ if (!title || typeof title !=='string' || !title.trim() || title.trim().length >
     } else {
         availableResolutions = []
     }
-    if (errors.errorMessages.length) {
+    if (errors.errorsMessages.length) {
         res.status(400).send(errors)
         return
     }
@@ -160,5 +140,103 @@ if (!title || typeof title !=='string' || !title.trim() || title.trim().length >
     videos.push(newVideo)
 
     res.status(201).send(newVideo)
+
+})
+
+
+
+app.put('/videos/:id', (req:RequestWithParamsAndBody<VideoUpdateModelParams, VideoUpdateModelBody>, res:Response)=>{
+    console.log('srabot')
+    let  {title, author, availableResolutions, canBeDownloaded, publicationDate, minAgeRestriction}:VideoUpdateModelBody = req.body
+    const id = +req.params.id
+
+    const errors: ErrorType = {
+        errorsMessages: []
+
+    }
+
+    if (!title || typeof title !== 'string' || !title.trim() || title.length>40){
+        res.status(400).send({
+            errorsMessages:[{
+                message:'Incorrect title',
+                field: 'title'
+            }],
+            resultCode:1
+        })
+        return
+    }
+
+    if (!author || typeof author !== 'string' || !author.trim() || author.length>20){
+        res.status(400).send({
+            errorsMessages:[{
+                message:'Incorrect author',
+                field: 'author'
+            }],
+            resultCode:1
+        })
+        return
+    }
+
+    if (availableResolutions && Array.isArray(availableResolutions)) {
+        availableResolutions.forEach(r => {
+            !AvailableResolutions.includes(r) && errors.errorsMessages.push({
+                message: 'Invalid avalableResolutions!',
+                field: 'avalableResolutions'
+            })
+        })
+    } else {
+        availableResolutions = []
+    }
+    if (!canBeDownloaded){
+        canBeDownloaded = false
+    }
+    if (canBeDownloaded && typeof canBeDownloaded !== "boolean"){
+        errors.errorsMessages.push({
+            message: 'Invalid canBeDownloaded',
+            field: 'canBeDownloaded'
+        })
+
+    }
+    const dataInspection = (/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/gi).test(publicationDate);
+    if(publicationDate && !dataInspection ){
+        errors.errorsMessages.push({
+            message: 'Invalid data',
+            field: 'publicationDate'
+        })
+    }
+
+    if (minAgeRestriction && typeof minAgeRestriction === "number"){
+        if(minAgeRestriction<1 || minAgeRestriction>18){
+            errors.errorsMessages.push({
+                message: 'Invalid minAgeRestriction',
+                field: 'minAgeRestriction'
+            })
+        }
+    }else {minAgeRestriction = null }
+
+
+
+    const video = videos.find(v=> { return v.id === id})
+    console.log('video>>', video)
+    if (!video){
+        res.sendStatus(404)
+        return;
+    }
+    const videoIndex = videos.findIndex(v => {return v.id === id})
+
+        const  videoUpdated = {
+            ...video,
+            canBeDownloaded,
+            minAgeRestriction,
+            title,
+            author,
+            publicationDate:publicationDate ? publicationDate : video.publicationDate
+
+        }
+        console.log('video test', videoUpdated)
+        videos.splice(videoIndex, 1, videoUpdated)
+        res.sendStatus(204)
+
+
 
 })
