@@ -109,8 +109,8 @@ if (!title || typeof title !=='string' || !title.trim() || title.trim().length >
     if (availableResolutions && Array.isArray(availableResolutions)) {
         availableResolutions.forEach(r => {
             !AvailableResolutions.includes(r) && errors.errorsMessages.push({
-                message: 'Invalid avalableResolutions!',
-                field: 'avalableResolutions'
+                message: 'Invalid availableResolutions!',
+                field: 'availableResolutions'
             })
         })
     } else {
