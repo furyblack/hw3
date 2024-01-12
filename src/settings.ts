@@ -156,40 +156,28 @@ app.put('/videos/:id', (req:RequestWithParamsAndBody<VideoUpdateModelParams, Vid
     }
 
     if (!title || typeof title !== 'string' || !title.trim() || title.length>40){
-        res.status(400).send({
-            errorsMessages:[{
+       errors.errorsMessages.push({
                 message:'Incorrect title',
                 field: 'title'
-            }],
-            resultCode:1
-        })
-        return
+            })
     }
 
     if (!author || typeof author !== 'string' || !author.trim() || author.length>20){
-        res.status(400).send({
-            errorsMessages:[{
-                message:'Incorrect author',
-                field: 'author'
-            }],
-            resultCode:1
+        errors.errorsMessages.push({
+            message:'Incorrect author',
+            field: 'author'
         })
-        return
     }
 
     if (availableResolutions && Array.isArray(availableResolutions)) {
         availableResolutions.forEach(r => {
             !AvailableResolutions.includes(r) && errors.errorsMessages.push({
-                message: 'Invalid avalableResolutions!',
-                field: 'avalableResolutions'
+                message: 'Invalid availableResolutions!',
+                field: 'availableResolutions'
             })
         })
-    } else {
-        availableResolutions = []
     }
-    if (!canBeDownloaded){
-        canBeDownloaded = false
-    }
+
     if (canBeDownloaded && typeof canBeDownloaded !== "boolean"){
         errors.errorsMessages.push({
             message: 'Invalid canBeDownloaded',
@@ -212,8 +200,11 @@ app.put('/videos/:id', (req:RequestWithParamsAndBody<VideoUpdateModelParams, Vid
                 field: 'minAgeRestriction'
             })
         }
-    }else {minAgeRestriction = null }
+    }
 
+    if(errors.errorsMessages.length){
+      return res.status(400).send(errors)
+    }
 
 
     const video = videos.find(v=> { return v.id === id})
@@ -222,20 +213,29 @@ app.put('/videos/:id', (req:RequestWithParamsAndBody<VideoUpdateModelParams, Vid
         res.sendStatus(404)
         return;
     }
-    const videoIndex = videos.findIndex(v => {return v.id === id})
 
-        const  videoUpdated = {
-            ...video,
-            canBeDownloaded,
-            minAgeRestriction,
-            title,
-            author,
-            publicationDate:publicationDate ? publicationDate : video.publicationDate
+    video.author = author;
+    video.title = title;
+    video.canBeDownloaded = canBeDownloaded ?? false;
+    video.availableResolutions = availableResolutions ?? ['P144'];
+    video.minAgeRestriction = minAgeRestriction;
+    video.publicationDate = publicationDate ? publicationDate : video.publicationDate
 
-        }
-        console.log('video test', videoUpdated)
-        videos.splice(videoIndex, 1, videoUpdated)
-        res.sendStatus(204)
+    // const videoIndex = videos.findIndex(v => {return v.id === id})
+    //
+    //     const  videoUpdated = {
+    //         ...video,
+    //         canBeDownloaded: canBeDownloaded ?? false,
+    //         minAgeRestriction,
+    //         title,
+    //         author,
+    //         publicationDate:publicationDate ? publicationDate : video.publicationDate,
+    //         availableResolutions: availableResolutions ?? ['P144']
+    //
+    //     }
+    //     console.log('video test', videoUpdated)
+    //     videos.splice(videoIndex, 1, videoUpdated)
+     return  res.sendStatus(204)
 
 
 
