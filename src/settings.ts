@@ -1,13 +1,18 @@
-import express, { Request, Response } from 'express';
-import {VideoUpdateModelBody, VideoUpdateModelParams} from "../models/videoUpdateModel";
+/*
+import express, {Request, Response} from 'express';
+import {blogRoute} from "./routes/blog-route";
+import {RequestWithBody, RequestWithParams, RequestWithParamsAndBody} from "./types/common";
 
-export const app = express();
+// import {VideoUpdateModelBody, VideoUpdateModelParams} from "../models/videoUpdateModel";
+//
 
-app.use(express.json());
+//
+ app.use(express.json());
+ app.use('/blogs', blogRoute)
 
 export const AvailableResolutions = ["P144", "P240", "P360", "P480", "P720", "P1080", "P1440", "P2160"];
 
-type VideoDbType = {
+export type VideoDbType = {
     id: number;
     title: string;
     author: string;
@@ -18,7 +23,7 @@ type VideoDbType = {
     availableResolutions: typeof AvailableResolutions;
 }
 
-let videos: VideoDbType[] = [
+export let videos: VideoDbType[] = [
     {
         id: 0,
         title: 'string',
@@ -33,9 +38,6 @@ let videos: VideoDbType[] = [
     }
 
 ];
-type RequestWithParams<P> = Request<P, {}, {}, {}>;
-type RequestWithBody<B> = Request<{}, {}, B, {}>;
-type RequestWithParamsAndBody<P,B> = Request<P, {}, B,{}>
 
 type CreateVideoType = {
     title: string;
@@ -240,3 +242,5 @@ app.put('/videos/:id', (req:RequestWithParamsAndBody<VideoUpdateModelParams, Vid
 
 
 })
+
+ */
