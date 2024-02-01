@@ -1,9 +1,8 @@
 
-export type PostDbType = {
-    "id": string,
+export type CreateNewPostType= {
     "title": string,
     "shortDescription": string,
     "content": string,
     "blogId": string,
-    "blogName": string
+    "blogName":string
 }

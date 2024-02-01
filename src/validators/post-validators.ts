@@ -1,36 +1,36 @@
-/*
-import {body} from "express-validators";
-import {BlogRepository} from "../repositories/blog-repository";
-import {inputValidationMiddleware} from "../middlewares/inputValidation/input-validation-middleware";
 
-const titleValidator = body('title').isString().withMessage('Title must be a string').trim().isLength({
+
+import {inputValidationMiddleware} from "../middlewares/inputValidation/input-validation-middleware";
+import {PostRepository} from "../repositories/post-repository";
+import {body} from "express-validator";
+import {BlogRepository} from "../repositories/blog-repository";
+
+const titleValidator = body('title').isString().trim().isLength({
     min: 1,
     max: 30
 }).withMessage('Incorrect title')
 
-const shortDescriptionValidator = body('Shortdescription').isString().withMessage('Shortdescription must be a string').trim().isLength({
+const shortDescriptionValidator = body('shortDescription').isString().withMessage('shortDescription must be a string').trim().isLength({
     min: 0,
     max: 100
 }).withMessage('Incorrect Shortdescription')
 
-const contentValidator = body('Content').isString().withMessage('Content must be a string').trim().isLength({
+const contentValidator = body('content').isString().withMessage('content must be a string').trim().isLength({
     min: 1,
     max: 1000
-}).matches( '^https://([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$'
-).withMessage('Incorrect Content')
+}).withMessage('Incorrect Content')
 
-const blogIdValidator = body('blogId').custom((value) => {
-    const blog = BlogRepository.getById(value);
-
-    if (!blog){
-        throw Error ('Incorrect blogId')
+export const postIdValidator = body('blogId').isString().custom((value:string) => {
+    const post = BlogRepository.getById(value);
+    console.log(post)
+    if (!post){
+        throw Error ('Incorrect postId')
     }
     return true
 
 }
-).withMessage('IncorrectblogId')
+).withMessage('Incorrect PostId')
 
-export const postValidation = () =>[titleValidator, shortDescriptionValidator, contentValidator, blogIdValidator, inputValidationMiddleware]
+export const postValidation = () =>[titleValidator, shortDescriptionValidator, contentValidator, postIdValidator, inputValidationMiddleware]
 
 
- */

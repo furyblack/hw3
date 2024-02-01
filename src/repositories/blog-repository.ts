@@ -4,15 +4,15 @@ import {CreateNewBlogType} from "../types/blogs/input";
 import {BlogBdType} from "../types/blogs/output";
 
 export class BlogRepository{
-    // static getById(id: number) {
-    //     return db.blogs.find((b:never) => b.id ==id)
-    // }
-
-
-     static getAll() {
-        return db.blogs
+     static getById(id: string) {
+         return db.blogs.find((b:BlogBdType) => b.id === id)
      }
 
+
+     static getAll():BlogBdType[] {
+       return db.blogs
+     }
+// второе действие
     static createBlog(blogParams: CreateNewBlogType){
         const newBlog:BlogBdType ={
             id: (new Date()).toISOString(),
@@ -48,3 +48,4 @@ export class BlogRepository{
     //     }
     // }
 }
+

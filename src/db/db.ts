@@ -1,12 +1,14 @@
 import {BlogBdType} from "../types/blogs/output";
 
-import {CreateNewPostType} from "../types/posts/output";
+
 import {VideoDbType} from "../types/videos/output";
+import {CreateNewPostType} from "../types/posts/input";
+import {PostDbType} from "../types/posts/output";
 
 type DbType = {
     blogs: BlogBdType[],
     videos: VideoDbType[],
-    posts: CreateNewPostType[]
+    posts: PostDbType[]
 }
 export const db:DbType = {
     blogs: [{

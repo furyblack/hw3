@@ -5,6 +5,13 @@
       <excludeFolder url="file://$MODULE_DIR$/.tmp" />
       <excludeFolder url="file://$MODULE_DIR$/temp" />
       <excludeFolder url="file://$MODULE_DIR$/tmp" />
+      <excludeFolder url="file://$MODULE_DIR$/dist/auth" />
+      <excludeFolder url="file://$MODULE_DIR$/dist/db" />
+      <excludeFolder url="file://$MODULE_DIR$/dist/middlewares" />
+      <excludeFolder url="file://$MODULE_DIR$/dist/repositories" />
+      <excludeFolder url="file://$MODULE_DIR$/dist/routes" />
+      <excludeFolder url="file://$MODULE_DIR$/dist/types" />
+      <excludeFolder url="file://$MODULE_DIR$/dist/validators" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
