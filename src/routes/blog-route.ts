@@ -6,8 +6,7 @@ import {BlogRepository} from "../repositories/blog-repository";
 import {RequestWithBody} from "../types/common";
 import {CreateNewBlogType} from "../types/blogs/input";
 import {BlogBdType} from "../types/blogs/output";
-import {CreateNewPostType} from "../types/posts/input";
-import {PostDbType} from "../types/posts/output";
+
 
 export const blogRoute  = Router({});
 
@@ -32,18 +31,26 @@ blogRoute.get('/', (req: Request, res: Response<BlogBdType[]> ) =>{
 
 
 
-// blogRoute.put('/:id', (req:Request, res: Response)=>{
-//     const isUpdated = BlogRepository.updateBlog(+req.params.id, req.body.title)
-//     if (isUpdated){
-//         const blog =BlogRepository.getById(+req.params.id)
-//         res.send(product)
-//     }
-//
-//     blogRoute.delete('/:id', (req:Request, res: Response)=> {
-//         const isDeleted = BlogRepository.deleteBlog(+req.params.id)
-//         if (isDeleted){
-//             res.send(204)
-//         }else{
-//         res.send(404)}
-//     }
-// })
+blogRoute.put('/:id', (req:Request, res: Response)=> {
+
+
+    const isUpdated = BlogRepository.updateBlog(req.params.id, req.body.name, req.body.description, req.body.websiteUrl)
+    if (isUpdated) {
+        res.sendStatus(204)
+
+    } else {
+        res.sendStatus(404)
+    }
+})
+
+
+
+blogRoute.delete('/:id', (req:Request, res: Response)=> {
+    console.log(req.params.id)
+    const isDeleted = BlogRepository.deleteBlog(req.params.id)
+        if (isDeleted){
+             res.send(204)
+         }else{
+         res.send(404)}
+
+ })
