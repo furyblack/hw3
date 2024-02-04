@@ -1,5 +1,4 @@
-import {CreateNewBlogType} from "../types/blogs/input";
-import {BlogBdType} from "../types/blogs/output";
+
 import {db} from "../db/db";
 import {CreateNewPostType} from "../types/posts/input";
 import {PostDbType} from "../types/posts/output";
@@ -26,4 +25,36 @@ export class PostRepository{
     static getAll():PostDbType[] {
         return db.posts
     }
+    static  updatePost(id: string, title: string, shortDescription: string, content: string, blogId:string, blogName: string ){
+        const postIndex = db.posts.findIndex(p =>p.id === id)
+        const post = this.getById(id)
+        if (!post) return null
+        const newPost = {
+            ...post,
+            title: title, shortDescription: shortDescription, content: content, blogId: blogId
+        }
+
+        db.posts.splice(postIndex, 1, newPost)
+        return true
+    }
+
+    static deletePost(id: string){
+        for (let i =0; i<db.posts.length; i++){
+
+            if(db.posts[i].id === id){
+                db.posts.splice(i, 1)
+                return  true;
+            }
+        }
+        return false
+    }
+    static deleteAllPosts(id:string){
+        const delPosts = db.posts.length=0
+        if (delPosts) {
+            return false
+        } else {
+            return true
+        }
+    }
+
 }

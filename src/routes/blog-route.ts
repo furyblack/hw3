@@ -11,11 +11,6 @@ import {BlogBdType} from "../types/blogs/output";
 export const blogRoute  = Router({});
 
 
-// blogRoute.get('/',  (req, res) => {
-//     const  blogs = BlogRepository.getAll()
-//     res.send(blogs)
-// })
-
 
 // первое действие,
 blogRoute.post('/', authMiddleware, blogValidation(), (req: RequestWithBody<CreateNewBlogType>, res: Response<BlogBdType>) => {
@@ -46,7 +41,7 @@ blogRoute.put('/:id', (req:Request, res: Response)=> {
 
 
 blogRoute.delete('/:id', (req:Request, res: Response)=> {
-    console.log(req.params.id)
+
     const isDeleted = BlogRepository.deleteBlog(req.params.id)
         if (isDeleted){
              res.send(204)
@@ -54,3 +49,13 @@ blogRoute.delete('/:id', (req:Request, res: Response)=> {
          res.send(404)}
 
  })
+
+blogRoute.get('/:id', (req:Request, res: Response) =>{
+    const blogId = BlogRepository.getById(req.params.id)
+    if (blogId){
+        console.log('if ushel')
+        res.send(200)
+    }else {
+        res.send(404)
+    }
+})
