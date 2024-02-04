@@ -4,5 +4,5 @@ export type CreateNewPostType= {
     "shortDescription": string,
     "content": string,
     "blogId": string,
-    "blogName":string
+   
 }

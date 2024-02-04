@@ -17,16 +17,16 @@ blogRoute.post('/', authMiddleware, blogValidation(), (req: RequestWithBody<Crea
     const  {name, description, websiteUrl}:CreateNewBlogType = req.body
     const addResult = BlogRepository.createBlog({name, description, websiteUrl})
 
-    res.send(addResult)
+    res.status(201).send(addResult)
 })
 blogRoute.get('/', (req: Request, res: Response<BlogBdType[]> ) =>{
     const blogs = BlogRepository.getAll()
-    res.send(blogs)
+    res.status(200).send(blogs)
 })
 
 
 
-blogRoute.put('/:id', (req:Request, res: Response)=> {
+blogRoute.put('/:id', authMiddleware, blogValidation(), (req:Request, res: Response)=> {
 
 
     const isUpdated = BlogRepository.updateBlog(req.params.id, req.body.name, req.body.description, req.body.websiteUrl)
@@ -40,22 +40,21 @@ blogRoute.put('/:id', (req:Request, res: Response)=> {
 
 
 
-blogRoute.delete('/:id', (req:Request, res: Response)=> {
+blogRoute.delete('/:id', authMiddleware, (req:Request, res: Response)=> {
 
     const isDeleted = BlogRepository.deleteBlog(req.params.id)
         if (isDeleted){
-             res.send(204)
+             res.sendStatus(204)
          }else{
-         res.send(404)}
+         res.sendStatus(404)}
 
  })
 
 blogRoute.get('/:id', (req:Request, res: Response) =>{
     const blogId = BlogRepository.getById(req.params.id)
     if (blogId){
-        console.log('if ushel')
-        res.send(200)
+        res.status(200).send(blogId)
     }else {
-        res.send(404)
+        res.sendStatus(404)
     }
 })

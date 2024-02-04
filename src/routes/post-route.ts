@@ -11,20 +11,20 @@ import {blogRoute} from "./blog-route";
 export const postRoute = Router({})
 
 postRoute.post('/', authMiddleware, postValidation(), (req: RequestWithBody<CreateNewPostType>, res: Response<PostDbType>) => {
-    const  {title, shortDescription, content, blogId, blogName}:CreateNewPostType = req.body
-    const addResult = PostRepository.createPost({title, shortDescription, content, blogId, blogName})
+    const  {title, shortDescription, content, blogId}:CreateNewPostType = req.body
+    const addResult = PostRepository.createPost({title, shortDescription, content, blogId })
 
-    res.send(addResult)
+    res.status(201).send(addResult)
 })
 postRoute.get('/', (req: Request, res: Response<PostDbType[]> ) =>{
     const posts= PostRepository.getAll()
     res.send(posts)
 })
 
-blogRoute.put('/:id', (req:Request, res: Response)=> {
+postRoute.put('/:id', authMiddleware, postValidation(), (req:Request, res: Response)=> {
 
 
-    const isUpdated = PostRepository.updatePost(req.params.id, req.body.title, req.body.shortDescription, req.body.content, req.body.blogName, req.body.blogId)
+    const isUpdated = PostRepository.updatePost(req.params.id, req.body.title, req.body.shortDescription, req.body.content, req.body.blogId)
     if (isUpdated) {
         res.sendStatus(204)
 
@@ -33,7 +33,7 @@ blogRoute.put('/:id', (req:Request, res: Response)=> {
     }
 })
 
-postRoute.delete('/:id', (req:Request, res:Response) => {
+postRoute.delete('/:id',  authMiddleware, (req:Request, res:Response) => {
     const isDeleted = PostRepository.deletePost(req.params.id)
     if (!isDeleted){
         res.sendStatus(404)
@@ -45,13 +45,10 @@ postRoute.delete('/:id', (req:Request, res:Response) => {
 postRoute.get('/:id', (req:Request, res: Response)=>{
     const postId = PostRepository.getById(req.params.id)
     if(postId){
-        res.sendStatus(200)
+
+        res.status(200).send(postId)
     }else {
         res.sendStatus(404)
     }
 })
 
-postRoute.delete('/testing/all-data', (req:Request, res: Response)=>{
-    const deletePosts = PostRepository.deleteAllPosts(req.params.id)
-    res.sendStatus(204)
-})

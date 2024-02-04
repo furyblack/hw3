@@ -11,7 +11,7 @@ const titleValidator = body('title').isString().trim().isLength({
 }).withMessage('Incorrect title')
 
 const shortDescriptionValidator = body('shortDescription').isString().withMessage('shortDescription must be a string').trim().isLength({
-    min: 0,
+    min: 1,
     max: 100
 }).withMessage('Incorrect Shortdescription')
 
