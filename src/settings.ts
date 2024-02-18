@@ -1,3 +1,24 @@
+import express, {Request, Response} from "express";
+import {db} from "./db/db";
+import {postRoute} from "./routes/post-route";
+import {blogRoute} from "./routes/blog-route";
+
+export const app = express();
+
+// подключение роутеров
+app.use(express.json())
+app.use('/posts', postRoute)
+app.use('/blogs', blogRoute)
+
+app.delete('/testing/all-data', (req:Request, res: Response)=>{
+    db.blogs.length=0
+    db.posts.length=0
+    res.sendStatus(204)
+})
+
+
+
+
 /*
 import express, {Request, Response} from 'express';
 import {blogRoute} from "./routes/blog-route";

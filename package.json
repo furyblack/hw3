@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "yarn nodemon --inspect dist/index.js",
     "watch": "tsc -w",
-    "test": "jest"
+    "test": "jest --detectOpenHandles --no-cache --watchAll --config ./__test__/jest.config.js"
   },
   "dependencies": {
     "@types/express-validator": "^3.0.0",
