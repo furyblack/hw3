@@ -1,28 +1,39 @@
 
-import {db} from "../db/db";
+import {blogCollection, db} from "../db/db";
 import {CreateNewBlogType} from "../types/blogs/input";
-import {BlogBdType} from "../types/blogs/output";
-
+import {BlogOutputType, BlogMongoDbType} from "../types/blogs/output";
+import * as crypto from "crypto";
+export class BlogMapper {
+    static toDto(blog:BlogMongoDbType):BlogOutputType{
+        return {
+            id: blog._id,
+            name: blog.name,
+            description: blog.description,
+            websiteUrl: blog.websiteUrl
+        }
+    }
+}
 export class BlogRepository{
      static getById(id: string) {
-         return db.blogs.find((b:BlogBdType) => b.id === id)
+         return db.blogs.find((b:BlogOutputType) => b.id === id)
      }
 
 
-     static getAll():BlogBdType[] {
+     static getAll():BlogOutputType[] {
        return db.blogs
      }
 // второе действие
-    static createBlog(blogParams: CreateNewBlogType){
-        const newBlog:BlogBdType ={
-            id: (new Date()).toISOString(),
+    static async createBlog(blogParams: CreateNewBlogType): Promise<BlogOutputType>{
+        const newBlog:BlogMongoDbType ={
+            _id: crypto.randomUUID(),
             name: blogParams.name,
             description: blogParams.description,
             websiteUrl: blogParams.websiteUrl
         }
-        db.blogs.push(newBlog)
 
-        return newBlog
+        const addResult = await blogCollection.insertOne(newBlog)
+
+        return BlogMapper.toDto(newBlog)
     }
 
 

@@ -1,20 +1,23 @@
-
 import express, {Request, Response} from 'express'
-import {blogRoute} from "./routes/blog-route";
-import {postRoute} from "./routes/post-route";
-import {PostRepository} from "./repositories/post-repository";
-import {db} from "./db/db";
-
+import {app} from "./settings";
+import {connectMongo, db} from "./db/db";
 import dotenv from 'dotenv'
 
 
-import {app} from "./settings";
+
+
+//const jsonBodyMiddleware = bodyParser.json()
 dotenv.config()
 const port= process.env.PORT as string
 
 
-app.listen(port, () =>
-{
-    console.log(`App start on port ${port}`)
-})
+
+    app.listen(port, async ()=>{
+        await connectMongo()
+        console.log(`examle app listenning on port ${port}`)
+    })
+
+
+
+
 

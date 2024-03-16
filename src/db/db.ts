@@ -1,12 +1,14 @@
-import {BlogBdType} from "../types/blogs/output";
 
-
+import * as dotenv from "dotenv";
+import {BlogOutputType, BlogMongoDbType} from "../types/blogs/output";
 import {VideoDbType} from "../types/videos/output";
-import {CreateNewPostType} from "../types/posts/input";
+
 import {PostDbType} from "../types/posts/output";
+import {Collection, MongoClient} from "mongodb";
+
 
 type DbType = {
-    blogs: BlogBdType[],
+    blogs: BlogOutputType[],
     videos: VideoDbType[],
     posts: PostDbType[]
 }
@@ -38,4 +40,27 @@ export const db:DbType = {
         "blogName": "string"
     }
     ],
+}
+
+
+
+//пытаюсь подключить бд
+
+dotenv.config()
+const mongoUri = process.env.MONGO_URL as string  // вытащили из енви строку  подключения
+
+export const client = new MongoClient(mongoUri);
+const mongoDb = client.db()
+
+ export const blogCollection: Collection<BlogMongoDbType> = mongoDb.collection<BlogMongoDbType>('blog')
+// export const postCollection: Collection<PostDbType> = db.collection<PostDbType>(SETTINGS.POST_COLLECTION_NAME)
+export async  function connectMongo (){
+    try{
+        await client.connect()
+        return true
+    }catch (e) {
+        console.log(e)
+        await client.close()
+        return false
+    }
 }
