@@ -1,8 +1,8 @@
-
 import {blogCollection, db} from "../db/db";
-import {CreateNewBlogType} from "../types/blogs/input";
+import {CreateNewBlogType, UpdateBlogType} from "../types/blogs/input";
 import {BlogOutputType, BlogMongoDbType} from "../types/blogs/output";
 import * as crypto from "crypto";
+import now = jest.now;
 export class BlogMapper {
     static toDto(blog:BlogMongoDbType):BlogOutputType{
         return {
@@ -14,15 +14,18 @@ export class BlogMapper {
     }
 }
 export class BlogRepository{
-     static getById(id: string) {
-         return db.blogs.find((b:BlogOutputType) => b.id === id)
+     static async getById(id: string):Promise<BlogOutputType | null> {
+         const blog = db.blogs.find((b:BlogOutputType) => b.id === id)
+         if (!blog){
+             return null
+         }
+         return blog
      }
 
-
-     static getAll():BlogOutputType[] {
+     static async getAll():Promise<BlogOutputType[]> {
        return db.blogs
      }
-// второе действие
+
     static async createBlog(blogParams: CreateNewBlogType): Promise<BlogOutputType>{
         const newBlog:BlogMongoDbType ={
             _id: crypto.randomUUID(),
@@ -37,20 +40,21 @@ export class BlogRepository{
     }
 
 
-
-    static updateBlog(id: string, name: string, description: string, websiteUrl: string){
-      const blogIndex = db.blogs.findIndex(b =>b.id === id)
-        const blog = this.getById(id)
-        if (!blog) return null
-        const newBlog = {
-          ...blog,
-            name: name, description: description, websiteUrl: websiteUrl
+    static async updateBlog(blogId: string, updateData:UpdateBlogType): Promise<boolean | null> {
+    const blog = await BlogRepository.getById(blogId)
+        if(!blog){
+            return null
         }
-        db.blogs.splice(blogIndex, 1, newBlog)
+        const updateResult = await blogCollection.updateOne({_id:blogId}, updateData)
+        const updatedCuont = updateResult.modifiedCount
+        if (!updatedCuont){
+            return false
+        }
         return true
-    }
+     }
 
-     static deleteBlog(id: string){
+
+    static deleteBlog(id: string){
          for (let i =0; i<db.blogs.length; i++){
 
              if(db.blogs[i].id === id){

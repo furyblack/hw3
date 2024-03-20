@@ -5,3 +5,9 @@ export type CreateNewBlogType= {
     "description": string,
     "websiteUrl": string
 }
+
+export type UpdateBlogType= {
+    "name": string,
+    "description": string,
+    "websiteUrl": string
+}
