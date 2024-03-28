@@ -11,3 +11,4 @@ export type UpdateBlogType= {
     "description": string,
     "websiteUrl": string
 }
+

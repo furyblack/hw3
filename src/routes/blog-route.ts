@@ -34,9 +34,9 @@ blogRoute.put('/:id', authMiddleware, blogValidation(), async (req:Request, res:
     return res.sendStatus(204)
 })
 
-blogRoute.delete('/:id', authMiddleware, (req:Request, res: Response)=> {
+blogRoute.delete('/:id', authMiddleware, async (req:Request, res: Response)=> {
 
-    const isDeleted = BlogRepository.deleteBlog(req.params.id)
+    const isDeleted = await BlogRepository.deleteBlog(req.params.id)
         if (isDeleted){
              res.sendStatus(204)
          }else{
@@ -45,9 +45,9 @@ blogRoute.delete('/:id', authMiddleware, (req:Request, res: Response)=> {
  })
 
 blogRoute.get('/:id', async (req:Request, res: Response) =>{
-    const blogId = await BlogRepository.getById(req.params.id)
-    if (blogId){
-        res.status(200).send(blogId)
+    const blog = await BlogRepository.getById(req.params.id)
+    if (blog){
+        res.status(200).send(blog)
     }else {
         res.sendStatus(404)
     }

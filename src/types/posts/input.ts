@@ -6,3 +6,11 @@ export type CreateNewPostType= {
     "blogId": string,
    
 }
+
+export type UpdatePostType= {
+    "title": string,
+    "shortDescription": string,
+    "content": string
+
+}
+

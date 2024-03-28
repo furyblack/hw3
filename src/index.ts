@@ -1,6 +1,6 @@
 
 import {app} from "./settings";
-import {connectMongo, db} from "./db/db";
+import {connectMongo} from "./db/db";
 import dotenv from 'dotenv'
 
 

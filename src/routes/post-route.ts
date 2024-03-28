@@ -1,8 +1,8 @@
 import {authMiddleware} from "../middlewares/auth/auth-middleware";
 import {RequestWithBody} from "../types/common";
 import {Request, Response, Router} from "express";
-import {PostDbType} from "../types/posts/output";
-import {CreateNewPostType} from "../types/posts/input";
+import {PostOutputType} from "../types/posts/output";
+import {CreateNewPostType, UpdatePostType} from "../types/posts/input";
 
 import {PostRepository} from "../repositories/post-repository";
 import {postValidation} from "../validators/post-validators";
@@ -10,31 +10,41 @@ import {postValidation} from "../validators/post-validators";
 import {blogRoute} from "./blog-route";
 export const postRoute = Router({})
 
-postRoute.post('/', authMiddleware, postValidation(), (req: RequestWithBody<CreateNewPostType>, res: Response<PostDbType>) => {
+postRoute.post('/', authMiddleware, postValidation(), async (req: RequestWithBody<CreateNewPostType>, res: Response<PostOutputType>) => {
     const  {title, shortDescription, content, blogId}:CreateNewPostType = req.body
-    const addResult = PostRepository.createPost({title, shortDescription, content, blogId })
-
+    const addResult = await PostRepository.createPost({title, shortDescription, content, blogId })
+    if(!addResult){
+        res.sendStatus(404)
+        return
+    }
     res.status(201).send(addResult)
 })
-postRoute.get('/', (req: Request, res: Response<PostDbType[]> ) =>{
-    const posts= PostRepository.getAll()
+postRoute.get('/', async (req: Request, res: Response<PostOutputType[]> ) =>{
+    const posts=  await PostRepository.getAll(req.query.title?.toString())
     res.send(posts)
 })
 
-postRoute.put('/:id', authMiddleware, postValidation(), (req:Request, res: Response)=> {
-
-
-    const isUpdated = PostRepository.updatePost(req.params.id, req.body.title, req.body.shortDescription, req.body.content, req.body.blogId)
-    if (isUpdated) {
-        res.sendStatus(204)
-
-    } else {
-        res.sendStatus(404)
+postRoute.put('/:id', authMiddleware, postValidation(), async (req:Request, res: Response)=> {
+    const postUpdateParams: UpdatePostType= {
+        title: req.body.title,
+        shortDescription: req.body.shortDescription,
+        content: req.body.content
     }
+    const postId = req.params.id
+
+    const isUpdated = await PostRepository.updatePost(postId, postUpdateParams)
+    if (isUpdated) {
+        return res.sendStatus(204)
+    }else{
+        return res.sendStatus(404)
+    }
+
+
+
 })
 
-postRoute.delete('/:id',  authMiddleware, (req:Request, res:Response) => {
-    const isDeleted = PostRepository.deletePost(req.params.id)
+postRoute.delete('/:id',  authMiddleware, async  (req:Request, res:Response) => {
+    const isDeleted = await PostRepository.deletePost(req.params.id)
     if (!isDeleted){
         res.sendStatus(404)
     }else{
@@ -42,10 +52,9 @@ postRoute.delete('/:id',  authMiddleware, (req:Request, res:Response) => {
     }
 })
 
-postRoute.get('/:id', (req:Request, res: Response)=>{
-    const postId = PostRepository.getById(req.params.id)
+postRoute.get('/:id', async (req:Request, res: Response)=>{
+    const postId = await PostRepository.getById(req.params.id)
     if(postId){
-
         res.status(200).send(postId)
     }else {
         res.sendStatus(404)

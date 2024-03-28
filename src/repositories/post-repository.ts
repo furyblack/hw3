@@ -1,63 +1,80 @@
-
-import {db} from "../db/db";
-import {CreateNewPostType} from "../types/posts/input";
-import {PostDbType} from "../types/posts/output";
+import { postCollection} from "../db/db";
+import {CreateNewPostType, UpdatePostType} from "../types/posts/input";
+import {PostOutputType, PostMongoDbType} from "../types/posts/output";
 import {BlogRepository} from "./blog-repository";
+import * as crypto from "crypto";
+
+
+export class PostMapper{
+    static toDto(post:PostMongoDbType):PostOutputType{
+        return {
+            id: post._id,
+            title: post.title,
+            shortDescription: post.shortDescription,
+            content: post.content,
+            blogId: post.blogId,
+            blogName: post.blogName,
+            createdAt: post.createdAt.toISOString()
+        }
+    }
+}
 
 export class PostRepository{
-    static createPost(postParams: CreateNewPostType){
-        const targetBlog = BlogRepository.getById(postParams.blogId)
-
-        const newPost:PostDbType ={
-            id: (new Date()).toISOString(),
+    static async createPost(postParams: CreateNewPostType): Promise<PostOutputType | null>{
+        const targetBlog = await BlogRepository.getById(postParams.blogId)
+        if (!targetBlog){
+            return null
+        }
+        const newPost:PostMongoDbType ={
+            _id: crypto.randomUUID(),
             title: postParams.title,
             shortDescription: postParams.shortDescription,
             content: postParams.content,
             blogId: postParams.blogId,
-            blogName: targetBlog!.name
+            blogName: targetBlog.name,
+            createdAt: new Date()
         }
-        db.posts.push(newPost)
+        await postCollection.insertOne(newPost)
 
-        return newPost
+
+        return PostMapper.toDto(newPost)
     }
 
-    static getById(id: string) {
-             return db.posts.find((p:PostDbType) => p.id ==id)
-         }
-
-    static getAll():PostDbType[] {
-        return db.posts
-    }
-    static  updatePost(id: string, title: string, shortDescription: string, content: string, blogId:string ){
-        const postIndex = db.posts.findIndex(p =>p.id === id)
-        const post = this.getById(id)
-        if (!post) return null
-        const newPost = {
-            ...post,
-            title: title, shortDescription: shortDescription, content: content, blogId: blogId
+    static async getById(id: string):Promise<PostOutputType | null> {
+        const post: PostMongoDbType | null = await postCollection.findOne({_id: id})
+        if(!post){
+            return null
         }
+        return PostMapper.toDto(post)
+    }
 
-        db.posts.splice(postIndex, 1, newPost)
+    static async getAll(title: string | null | undefined):Promise<PostOutputType[]> {
+        const posts  = await postCollection.find({}).toArray()
+        return posts.map(post => PostMapper.toDto(post))
+    }
+    static async  updatePost(postId: string,  updateData:UpdatePostType): Promise<boolean | null>{
+       const post = await PostRepository.getById(postId)
+        if(!post){
+            return null
+        }
+        const updateResult = await postCollection.updateOne({_id:postId}, {$set:{...updateData}})
+        const updatedCount = updateResult.modifiedCount
+        if (updatedCount){
+            return false
+        }
         return true
     }
 
-    static deletePost(id: string){
-        for (let i =0; i<db.posts.length; i++){
-
-            if(db.posts[i].id === id){
-                db.posts.splice(i, 1)
-                return  true;
-            }
-        }
-        return false
-    }
-    static deleteAllPosts(id:string){
-        const delPosts = db.posts.length=0
-        if (delPosts) {
+    static async deletePost(id: string): Promise<boolean>{
+        try{
+            const result = await postCollection.deleteOne({_id:id})
+            return result.deletedCount === 1;
+        }catch (error){
+            console.error("Error deleting post", error)
             return false
-        } else {
-            return true
         }
+
     }
+
 
 }

@@ -1,5 +1,5 @@
 import express, {Request, Response} from "express";
-import {db} from "./db/db";
+import {blogCollection, postCollection} from "./db/db";
 import {postRoute} from "./routes/post-route";
 import {blogRoute} from "./routes/blog-route";
 
@@ -10,9 +10,9 @@ app.use(express.json())
 app.use('/posts', postRoute)
 app.use('/blogs', blogRoute)
 
-app.delete('/testing/all-data', (req:Request, res: Response)=>{
-    db.blogs.length=0
-    db.posts.length=0
+app.delete('/testing/all-data', async (req:Request, res: Response)=>{
+    await blogCollection.deleteMany({})
+    await postCollection.deleteMany({})
     res.sendStatus(204)
 })
 

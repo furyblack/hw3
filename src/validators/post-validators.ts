@@ -20,10 +20,10 @@ const contentValidator = body('content').isString().withMessage('content must be
     max: 1000
 }).withMessage('Incorrect Content')
 
-export const postIdValidator = body('blogId').isString().custom((value:string) => {
-    const post = BlogRepository.getById(value);
-    console.log(post)
-    if (!post){
+export const postIdValidator = body('blogId').isString().custom  (async (value:string) => {
+    const blog = await BlogRepository.getById(value);
+    console.log(blog)
+    if (!blog){
         throw Error ('Incorrect postId')
     }
     return true
