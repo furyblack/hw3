@@ -7,7 +7,7 @@ export type BlogOutputType =  {
     "createdAt": string
 }
 export type BlogMongoDbType =  {
-    "_id": string,
+    //"_id": string,
     "name": string,
     "description": string,
     "websiteUrl": string,

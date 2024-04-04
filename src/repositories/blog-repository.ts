@@ -2,13 +2,14 @@ import {blogCollection} from "../db/db";
 import {CreateNewBlogType, UpdateBlogType} from "../types/blogs/input";
 import {BlogOutputType, BlogMongoDbType} from "../types/blogs/output";
 import * as crypto from "crypto";
+import {ObjectId, WithId} from "mongodb";
 
 
 
 export class BlogMapper {
-    static toDto(blog:BlogMongoDbType):BlogOutputType{
+    static toDto(blog: WithId<BlogMongoDbType>):BlogOutputType{
         return {
-            id: blog._id,
+            id: blog._id.toString(),
             name: blog.name,
             description: blog.description,
             websiteUrl: blog.websiteUrl,
@@ -19,7 +20,7 @@ export class BlogMapper {
 }
 export class BlogRepository{
      static async getById(id: string):Promise<BlogOutputType | null> {
-         const blog: BlogMongoDbType | null = await blogCollection.findOne({_id: id})
+         const blog: WithId<BlogMongoDbType> | null = await blogCollection.findOne({_id: new ObjectId(id)})
          if (!blog){
              return null
          }
@@ -35,35 +36,30 @@ export class BlogRepository{
 
     static async createBlog(blogParams: CreateNewBlogType): Promise<BlogOutputType>{
         const newBlog:BlogMongoDbType ={
-            _id: crypto.randomUUID(),
+           // _id: crypto.randomUUID(),
             name: blogParams.name,
             description: blogParams.description,
             websiteUrl: blogParams.websiteUrl,
             createdAt: new Date()
         }
 
-        await blogCollection.insertOne(newBlog)
+        const res = await blogCollection.insertOne(newBlog)
 
-        return BlogMapper.toDto(newBlog)
+        return BlogMapper.toDto({...newBlog, _id:res.insertedId})
     }
 
-    static async updateBlog(blogId: string, updateData:UpdateBlogType): Promise<boolean | null> {
-    const blog = await BlogRepository.getById(blogId)
-        if(!blog){
-            return null
-        }
-        const updateResult = await blogCollection.updateOne({_id:blogId}, {$set:{...updateData}})
+    static async updateBlog(blogId: string, updateData:UpdateBlogType): Promise<boolean> {
+
+        const updateResult = await blogCollection.updateOne({_id:new ObjectId(blogId)}, {$set:{...updateData}})
         const updatedCount = updateResult.modifiedCount
-        if (updatedCount){
-            return false
-        }
-        return true
+        return !!updatedCount;
+
      }
 
 
     static async deleteBlog(id: string): Promise<boolean> {
         try {
-            const result = await blogCollection.deleteOne({ _id: id });
+            const result = await blogCollection.deleteOne({ _id: new ObjectId(id) });
             return result.deletedCount === 1;
         } catch (error) {
             console.error("Error deleting blog:", error);

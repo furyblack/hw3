@@ -1,6 +1,11 @@
 import request from 'supertest'
 import {app} from "../../src/settings";
 
+const incorrectBlogData = {
+    name: "",
+    description: "",
+    websiteUrl: ""
+}
 
 const blogCreateData = {
     name: "test",
@@ -34,11 +39,7 @@ describe('blogs', ()=>{
         const createResponse=  await request(app)
             .post('/blogs')
             .auth("admin", "qwerty")
-            .send({
-                name: "",
-                description: "",
-                websiteUrl: ""
-            })
+            .send(incorrectBlogData)
             .expect(400)
         expect(createResponse.body.errorsMessages.length).toEqual(3)
         expect(createResponse.body.errorsMessages[0].field).toEqual('name')
@@ -63,16 +64,51 @@ describe('blogs', ()=>{
         expect(createResponse.body).toEqual(blog!)
 
     })
+    it('shouldn"t  get blog by id', async ()=>{
+        const createResponse=  await request(app)
+            .get('/blogs/' + '54554')
+            .expect(404)
+
+
+    })
+
     it('should update blog with correct input data', async ()=>{
         const createResponse=  await request(app)
             .put('/blogs/' + blog!.id )
             .auth("admin", "qwerty")
             .send(blogUpdateData)
             .expect(204)
+    })//TODO не хватает по свагеру
 
-
-
+    it('shouldn"t update blog with correct input data and incorrect blogId', async ()=>{
+        const createResponse=  await request(app)
+            .put('/blogs/' + '999999' )
+            .auth("admin", "qwerty")
+            .send(blogUpdateData)
+            .expect(404)
     })
+
+    it('shouldn"t update blog without authorization ', async ()=>{
+        const createResponse=  await request(app)
+            .put('/blogs/' + blog!.id )
+            .auth("admnnin", "qweraty")
+            .send(blogUpdateData)
+            .expect(401)
+    })
+
+    it('shouldn"t update blog with incorrect data ', async ()=>{
+        const createResponse=  await request(app)
+
+            .put('/blogs/' + blog!.id )
+            .auth("admin", "qwerty")
+            .send(incorrectBlogData)
+            .expect(400)
+        expect(createResponse.body.errorsMessages.length).toEqual(3)
+        expect(createResponse.body.errorsMessages[0].field).toEqual('name')
+        expect(createResponse.body.errorsMessages[1].field).toEqual('description')
+        expect(createResponse.body.errorsMessages[2].field).toEqual('websiteUrl')
+    })
+
     it('should get blog by id with new data', async ()=>{
         const createResponse=  await request(app)
             .get('/blogs/' + blog!.id)
@@ -81,8 +117,29 @@ describe('blogs', ()=>{
         expect(createResponse.body.description).toEqual(blogUpdateData.description)
         expect(createResponse.body.websiteUrl).toEqual(blogUpdateData.websiteUrl)
         expect(createResponse.body.id).toEqual(expect.any(String))
+        blog = createResponse.body
+
 
     })
+        //TODO делит епта
+    it('shouldn"t delete blog by id wihtout auth ', async ()=>{
+        const createResponse=  await request(app)
+            .delete('/blogs/' + blog!.id)
+            .auth("admddin", "qwerfty")
+            .expect(401)
+    })
 
+    it('should delete blog', async ()=>{
+        const createResponse=  await request(app)
+            .delete('/blogs/' + blog!.id)
+            .auth("admin", "qwerty")
+            .expect(204)
+    })
+
+    it('should delete blog', async ()=>{
+        const createResponse=  await request(app)
+            .delete('/blogs/' + blog!.id)
+            .auth("admin", "qwerty")
+            .expect(404)
+    })
 })
-

@@ -59,7 +59,7 @@ export class PostRepository{
         }
         const updateResult = await postCollection.updateOne({_id:postId}, {$set:{...updateData}})
         const updatedCount = updateResult.modifiedCount
-        if (updatedCount){
+        if (!updatedCount){
             return false
         }
         return true

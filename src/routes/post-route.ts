@@ -7,7 +7,7 @@ import {CreateNewPostType, UpdatePostType} from "../types/posts/input";
 import {PostRepository} from "../repositories/post-repository";
 import {postValidation} from "../validators/post-validators";
 
-import {blogRoute} from "./blog-route";
+
 export const postRoute = Router({})
 
 postRoute.post('/', authMiddleware, postValidation(), async (req: RequestWithBody<CreateNewPostType>, res: Response<PostOutputType>) => {
@@ -32,7 +32,9 @@ postRoute.put('/:id', authMiddleware, postValidation(), async (req:Request, res:
     }
     const postId = req.params.id
 
+
     const isUpdated = await PostRepository.updatePost(postId, postUpdateParams)
+    console.log(isUpdated)
     if (isUpdated) {
         return res.sendStatus(204)
     }else{
