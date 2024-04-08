@@ -49,7 +49,7 @@ describe('blogs', ()=>{
     })
 
     it("shouldn't create blog without authorization", async ()=>{
-        const createResponse=  await request(app)
+        await request(app)
             .post('/blogs/' )
             .auth("adminnn", "qwerty")
             .send(blogCreateData)
@@ -65,7 +65,7 @@ describe('blogs', ()=>{
 
     })
     it('shouldn"t  get blog by id', async ()=>{
-        const createResponse=  await request(app)
+        await request(app)
             .get('/blogs/' + '54554')
             .expect(404)
 
@@ -73,7 +73,7 @@ describe('blogs', ()=>{
     })
 
     it('should update blog with correct input data', async ()=>{
-        const createResponse=  await request(app)
+        await request(app)
             .put('/blogs/' + blog!.id )
             .auth("admin", "qwerty")
             .send(blogUpdateData)
@@ -81,7 +81,7 @@ describe('blogs', ()=>{
     })//TODO не хватает по свагеру
 
     it('shouldn"t update blog with correct input data and incorrect blogId', async ()=>{
-        const createResponse=  await request(app)
+        await request(app)
             .put('/blogs/' + '999999' )
             .auth("admin", "qwerty")
             .send(blogUpdateData)
@@ -89,7 +89,7 @@ describe('blogs', ()=>{
     })
 
     it('shouldn"t update blog without authorization ', async ()=>{
-        const createResponse=  await request(app)
+        await request(app)
             .put('/blogs/' + blog!.id )
             .auth("admnnin", "qweraty")
             .send(blogUpdateData)
@@ -118,26 +118,24 @@ describe('blogs', ()=>{
         expect(createResponse.body.websiteUrl).toEqual(blogUpdateData.websiteUrl)
         expect(createResponse.body.id).toEqual(expect.any(String))
         blog = createResponse.body
-
-
     })
         //TODO делит епта
     it('shouldn"t delete blog by id wihtout auth ', async ()=>{
-        const createResponse=  await request(app)
+        await request(app)
             .delete('/blogs/' + blog!.id)
             .auth("admddin", "qwerfty")
             .expect(401)
     })
 
     it('should delete blog', async ()=>{
-        const createResponse=  await request(app)
+        await request(app)
             .delete('/blogs/' + blog!.id)
             .auth("admin", "qwerty")
             .expect(204)
     })
 
-    it('should delete blog', async ()=>{
-        const createResponse=  await request(app)
+    it('shouldn"t delete blog', async ()=>{
+        await request(app)
             .delete('/blogs/' + blog!.id)
             .auth("admin", "qwerty")
             .expect(404)
