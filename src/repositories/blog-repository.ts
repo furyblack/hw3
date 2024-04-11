@@ -1,7 +1,6 @@
 import {blogCollection} from "../db/db";
 import {CreateNewBlogType, UpdateBlogType} from "../types/blogs/input";
 import {BlogOutputType, BlogMongoDbType} from "../types/blogs/output";
-import * as crypto from "crypto";
 import {ObjectId, WithId} from "mongodb";
 
 
